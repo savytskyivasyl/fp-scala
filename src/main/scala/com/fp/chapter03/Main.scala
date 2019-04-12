@@ -207,7 +207,7 @@ object Main {
     println(map(tree)(_ + 1))
     println(mapViaFold(tree)(_ + 1))
 
-    3.8
+    //3.8
     println(foldRight(l1, Nil:List[Int])(_ :: _))
   }
 
