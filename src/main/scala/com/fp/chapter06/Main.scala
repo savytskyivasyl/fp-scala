@@ -116,6 +116,26 @@ object Main {
 
   def rollDie: Rand[Int] = map(nonNegativeLessThan(6))(_ + 1)
 
+  case class State[S,+A](run: S => (A,S)) {
+    def map[B](f: A => B): State[S, B] = flatMap(a => State.unit(f(a)))
+
+    def flatMap[B](g: A => State[S, B]): State[S, B] = State(s => {
+      val (a, s1) = run(s)
+      g(a).run(s1)
+    })
+
+    def map2[B,C](rb: State[S, B])(f: (A, B) => C): State[S, C] = flatMap(a => rb.map(b => f(a, b)))
+  }
+
+  object State {
+    def unit[S, A](a: A): State[S, A] = State(s => (a, s))
+
+    def sequence[S, A](fs: List[State[S, A]]): State[S, List[A]] = State(s => {
+      val pair = fs.tail.foldRight(List(fs.head.run(s)))((st, l) => st.run(l.head._2) :: l).unzip
+      (pair._1, pair._2.head)
+    })
+  }
+
   def main(args: Array[String]): Unit = {
     val rng = SimpleRNG(42)
     val (n1, rng2) = rng.nextInt
@@ -156,5 +176,8 @@ object Main {
 
     val (n13, rng14) = rollDie(rng13)
     println(n13)
+
+    val (n14, rng15) = State.sequence(List.fill(5)(State(int))).run(rng14)
+    println(n14)
   }
 }
