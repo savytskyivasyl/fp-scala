@@ -5,7 +5,11 @@ import com.fp.chapter08.Main.Prop.{FailedCase, SuccessCount}
 
 object Main {
 
-  case class Gen[A](sample: State[RNG, A])
+  case class Gen[A](sample: State[RNG, A]) {
+    def flatMap[B](f: A => Gen[B]): Gen[B] = Gen(sample.flatMap(a => f(a).sample))
+
+    def listOfN(size: Gen[Int]): Gen[List[A]] = size.flatMap(a => Gen(State(s => sequence(List.fill(a)(sample.run))(s))))
+  }
 
   object Gen {
     def choose(start: Int, stopExclusive: Int): Gen[Int] = Gen(State(s =>
@@ -47,5 +51,9 @@ object Main {
 
     val (n3, rng4) = Gen.listOfN(10, Gen.choose(5, 25)).sample.run(rng3)
     println(n3)
+
+
+    val (n4, rng5) = Gen.boolean.listOfN(Gen.choose(1, 8)).sample.run(rng4)
+    println(n4)
   }
 }
