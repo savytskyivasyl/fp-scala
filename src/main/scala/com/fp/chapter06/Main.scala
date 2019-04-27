@@ -89,15 +89,15 @@ object Main {
     sequence(List.fill(count)(int))
   }
 
-  def nonNegativeLessThan(n: Int): Rand[Int] = {
+  def nonNegativeLessThan_(n: Int): Rand[Int] = {
     rng =>
       val (i, rng2) = nonNegativeInt(rng)
       val mod = i % n
       if (i + (n-1) - mod >= 0) (mod, rng2)
-      else nonNegativeLessThan(n)(rng2)
+      else nonNegativeLessThan_(n)(rng2)
   }
 
-  def nonNegativeLessThanViaFlatMap(n: Int): Rand[Int] =
+  def nonNegativeLessThan(n: Int): Rand[Int] =
     flatMap(nonNegativeInt) {
       i =>
         val mod = i % n
@@ -168,10 +168,10 @@ object Main {
     val (n10, rng11) = intsViaSequence(5)(rng10)
     println(n10)
 
-    val (n11, rng12) = nonNegativeLessThan(20)(rng11)
+    val (n11, rng12) = nonNegativeLessThan_(20)(rng11)
     println(n11)
 
-    val (n12, rng13) = nonNegativeLessThanViaFlatMap(20)(rng12)
+    val (n12, rng13) = nonNegativeLessThan(20)(rng12)
     println(n12)
 
     val (n13, rng14) = rollDie(rng13)
