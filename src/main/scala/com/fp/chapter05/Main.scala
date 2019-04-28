@@ -54,6 +54,19 @@ object Main {
     def append[B>:A](s: => Stream[B]): Stream[B] = foldRight(s)(cons(_, _))
 
     def flatMap[B](f: A => Stream[B]): Stream[B] = foldRight(empty[B])((a, b) => f(a) append b)
+
+
+    ////was copied from answers in order to  go further with capter 08
+    def zipWith[B,C](s2: Stream[B])(f: (A,B) => C): Stream[C] =
+      unfold((this, s2)) {
+        case (Cons(h1,t1), Cons(h2,t2)) =>
+          Some((f(h1(), h2()), (t1(), t2())))
+        case _ => None
+      }
+
+    def zip[B](s2: Stream[B]): Stream[(A,B)] =
+      zipWith(s2)((_,_))
+    //////////
   }
 
   case object Empty extends Stream[Nothing]
